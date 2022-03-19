@@ -1,25 +1,49 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-function App() {
+import useSearch from "./components/useSearch";
+import MainPage from "./components/MainPage";
+import LaunchPage from "./components/LaunchPage";
+import "./css/main.css";
+
+export default function App() {
+  const [phrase, setQuery] = useState("");
+  const [pageNumber, setPageNumber] = useState(0);
+
+  const { launches, hasMore, loading, error } = useSearch(phrase, pageNumber);
+
+  function handleSearch(e) {
+    setQuery(e.target.value);
+    setPageNumber(0);
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <MainPage
+              launches={launches}
+              hasMore={hasMore}
+              loading={loading}
+              error={error}
+              phrase={phrase}
+              handleSearch={handleSearch}
+              setPageNumber={setPageNumber}
+            />
+          }
+        />
+        {launches.map((launch) => {
+          return (
+            <Route
+              key={launch.id}
+              path={"/" + launch.id}
+              element={<LaunchPage launchId={launch.id} />}
+            />
+          );
+        })}
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;
